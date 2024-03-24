@@ -44,17 +44,11 @@ func execRoot() {
 
 		// Process each vendor rule regex pattern.
 		for _, ruleRegExp := range rule.Vendor {
-			matchesSet := ruleRegExp.RegEx.FindAllStringSubmatch(inputContentStr, ruleRegExp.Index+1) // match up to the provided index (defaults to 0)
-			if ruleRegExp.Index < len(matchesSet) {                                                   // check if enough matches were found to include the provided index
-				matches := matchesSet[ruleRegExp.Index]
-				// Append the first subgroup match, if available, otherwise the entire match.
-				if len(matches) == 2 {
-					vendorMatches = append(vendorMatches, matches[1])
-				} else {
-					vendorMatches = append(vendorMatches, matches[0])
-				}
+			match, matched := rules.MatchRuleRegExp(inputContentStr, ruleRegExp, useSubgroupMatch)
+			if matched {
+				vendorMatches = append(vendorMatches, match)
 			} else {
-				break // Exit the loop if no match is found for the current index.
+				break
 			}
 		}
 
@@ -64,23 +58,15 @@ func execRoot() {
 		}
 
 		// Process the date rule regex pattern.
-		matchesSet := rule.Date.RegEx.FindAllStringSubmatch(inputContentStr, rule.Date.Index+1)
-		if rule.Date.Index >= len(matchesSet) {
-			continue // Skip to the next rule if no date match was found.
-		}
-
-		matches := matchesSet[rule.Date.Index]
-		// Extract the date match, preferring the first subgroup match if available.
-		if len(matches) == 2 {
-			dateMatch = matches[1]
-		} else {
-			dateMatch = matches[0]
+		dateMatch, matched := rules.MatchRuleRegExp(inputContentStr, rule.Date, useSubgroupMatch)
+		if !matched {
+			continue
 		}
 
 		// Parse the matched date string using the rule's date format.
 		date, err := time.Parse(rule.DateFormat, dateMatch)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: matched rule [%d] but failed to parse date (%s): %v\n", index, dateMatch, err)
+			fmt.Fprintf(os.Stderr, "error: matched rule [%d] but failed to parse date (%s): %v\n", index+1, dateMatch, err)
 			os.Exit(2)
 		}
 
@@ -92,7 +78,7 @@ func execRoot() {
 
 		// Populate the map with vendor matches.
 		for index, vendorMatch := range vendorMatches {
-			filePathTemplateMap[fmt.Sprintf("(%d)", index)] = vendorMatch
+			filePathTemplateMap[fmt.Sprintf("(%d)", index+1)] = vendorMatch
 		}
 
 		// Add the formatted date to the map.

@@ -50,7 +50,7 @@ func ReadRulesFromFile(filePath string) (Rules, error) {
 	for index, raw := range rawRules {
 		rule, err := parseRawRule(raw)
 		if err != nil {
-			return nil, fmt.Errorf("could not parse rule [%d]: %v", index, err)
+			return nil, fmt.Errorf("could not parse rule [%d]: %v", index+1, err)
 		}
 		rules = append(rules, rule)
 	}

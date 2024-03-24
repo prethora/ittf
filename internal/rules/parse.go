@@ -9,12 +9,11 @@ import (
 	"time"
 )
 
-// parseRuleRegExp takes a string input and attempts to parse it into a RuleRegExp struct, which includes the zero-based index
+// parseRuleRegExp takes a string input and attempts to parse it into a RuleRegExp struct, which includes the one-based index
 // of the expected occurrence and the compiled regex.
 func parseRuleRegExp(raw string) (*RuleRegExp, error) {
-	// Initialize a new RuleRegExp with default values.
 	ruleRegexp := &RuleRegExp{
-		Index: 0,
+		Index: 1, // The default value, if the prefix is not specified
 		RegEx: nil,
 	}
 
@@ -22,12 +21,17 @@ func parseRuleRegExp(raw string) (*RuleRegExp, error) {
 	raw = strings.TrimSpace(raw)
 
 	// Attempt to match and extract the index part from the beginning of the string.
-	matches := regexp.MustCompile(`^(\d+)\/`).FindStringSubmatch(raw)
+	matches := regexp.MustCompile(`^((?:\+|-)?\d+)\/`).FindStringSubmatch(raw)
 	if len(matches) > 0 {
 		// If a match is found, parse the index as an integer.
 		index, err := strconv.Atoi(matches[1])
 		if err == nil {
+			if index == 0 {
+				return nil, errors.New("the index prefix must be either negative or positive, but cannot be zero (1-based index)")
+			}
+
 			ruleRegexp.Index = index
+
 			// Remove the index part from the raw string to leave only the regex pattern.
 			raw = raw[len(matches[0]):]
 		}
@@ -70,13 +74,13 @@ func parseRawRule(raw rawRule) (*Rule, error) {
 	// Iterate through each vendor regex string.
 	for index, value := range raw.Vendor {
 		if value == "" {
-			return nil, fmt.Errorf("vendor regexp [%d] is empty", index)
+			return nil, fmt.Errorf("vendor regexp [%d] is empty", index+1)
 		}
 
 		// Parse each vendor regex string into a RuleRegExp struct.
 		vendorRegex, err := parseRuleRegExp(value)
 		if err != nil {
-			return nil, fmt.Errorf("could not compile vendor regexp [%d] (%s): %v", index, value, err)
+			return nil, fmt.Errorf("could not compile vendor regexp [%d] (%s): %v", index+1, value, err)
 		}
 		// Append the parsed RuleRegExp to the Vendor slice of the Rule.
 		rule.Vendor = append(rule.Vendor, vendorRegex)
@@ -111,8 +115,7 @@ func parseRawRule(raw rawRule) (*Rule, error) {
 	// Trim leading and trailing whitespace from the FileName field and set a default value if it's empty.
 	raw.FileName = strings.TrimSpace(raw.FileName)
 	if raw.FileName == "" {
-		// The fileName defaults to {date} - {last vendor regexp match}.pdf
-		rule.FileName = fmt.Sprintf("(date) - (%d).pdf", len(raw.Vendor)-1)
+		rule.FileName = "(date) - (1).pdf"
 	} else {
 		rule.FileName = raw.FileName
 	}
