@@ -4,7 +4,32 @@ import (
 	"math"
 )
 
-func MatchRuleRegExp(str string, ruleRegExp *RuleRegExp, useSubgroupMatch bool) (string, bool) {
+func matchRuleRegExpIndex(str string, ruleRegExp *RuleRegExp, useSubgroupMatch bool) ([]int, bool) {
+	beg := 0
+	end := len(str)
+
+	if ruleRegExp.After != nil {
+		if match, matched := matchRuleRegExpIndex(str, ruleRegExp.After, false); matched {
+			beg = match[1]
+		} else {
+			return nil, false
+		}
+	}
+
+	if ruleRegExp.Before != nil {
+		if match, matched := matchRuleRegExpIndex(str, ruleRegExp.Before, false); matched {
+			end = match[0]
+		} else {
+			return nil, false
+		}
+	}
+
+	if end < beg {
+		return nil, false
+	}
+
+	str = str[beg:end]
+
 	maxSearch := ruleRegExp.Index
 	requiredCount := int(math.Abs(float64(ruleRegExp.Index)))
 
@@ -12,7 +37,7 @@ func MatchRuleRegExp(str string, ruleRegExp *RuleRegExp, useSubgroupMatch bool) 
 		maxSearch = -1 // If the index is negative, do not limit the number of occurences, as we are counting backwards.
 	}
 
-	matchesSet := ruleRegExp.RegEx.FindAllStringSubmatch(str, maxSearch)
+	matchesSet := ruleRegExp.RegEx.FindAllStringSubmatchIndex(str, maxSearch)
 	if requiredCount <= len(matchesSet) { // check if enough matches were found to include the provided index.
 		var requiredIndex int
 
@@ -24,16 +49,27 @@ func MatchRuleRegExp(str string, ruleRegExp *RuleRegExp, useSubgroupMatch bool) 
 
 		matches := matchesSet[requiredIndex]
 
-		var result string
+		var result []int
 
 		// if the --subgroup-match flag was set, attempt to extract a single subgroup match.
-		if len(matches) == 2 && useSubgroupMatch {
-			result = matches[1]
+		if len(matches) == 4 && useSubgroupMatch {
+			result = matches[2:]
 		} else {
-			result = matches[0]
+			result = matches[0:2]
 		}
 
+		result[0] += beg
+		result[1] += beg
+
 		return result, true
+	} else {
+		return nil, false
+	}
+}
+
+func MatchRuleRegExp(str string, ruleRegExp *RuleRegExp, useSubgroupMatch bool) (string, bool) {
+	if match, matched := matchRuleRegExpIndex(str, ruleRegExp, useSubgroupMatch); matched {
+		return str[match[0]:match[1]], true
 	} else {
 		return "", false
 	}

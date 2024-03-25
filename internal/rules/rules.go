@@ -9,15 +9,17 @@ import (
 )
 
 type rawRule struct {
-	Vendor     []string `yaml:"vendor"`
-	Date       string   `yaml:"date"`
-	DateFormat string   `yaml:"dateFormat"`
-	FileName   string   `yaml:"fileName"`
+	Vendor     []interface{} `yaml:"vendor"`
+	Date       interface{}   `yaml:"date"`
+	DateFormat string        `yaml:"dateFormat"`
+	FileName   string        `yaml:"fileName"`
 }
 
 type RuleRegExp struct {
-	Index int
-	RegEx *regexp.Regexp
+	Index  int
+	RegEx  *regexp.Regexp
+	After  *RuleRegExp
+	Before *RuleRegExp
 }
 
 type Rule struct {

@@ -10,20 +10,13 @@ var dateOutputFormat string
 var useSubgroupMatch bool
 
 var RootCmd = &cobra.Command{
-	Use:   "ittf -i <input file> -r <rules file>",
-	Short: "ittf processes an input file based on given rules in an attempt to extract a formatted file name.\n\nOutputs the file name, or exits with status 1 if no rules were matched.",
+	Use:   "ittf -f <file> -r <rules file>",
+	Short: "ittf processes an input file based on given rules in an attempt to extract a formatted file name.\n\nOutputs the file name, or exits with a non-zero exit code otherwise. See README.md file for error codes.",
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		execRoot()
 	},
-}
-
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print the version number",
-	Run: func(cmd *cobra.Command, args []string) {
-		execVersion()
-	},
+	Version: "1.0.0",
 }
 
 var validateCmd = &cobra.Command{
@@ -40,9 +33,8 @@ func init() {
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
 
 	RootCmd.AddCommand(validateCmd)
-	RootCmd.AddCommand(versionCmd)
 
-	RootCmd.Flags().StringVarP(&inputFilePath, "input", "i", "", "Path to the input file (required)")
+	RootCmd.Flags().StringVarP(&inputFilePath, "file", "f", "", "Path to the input file (required)")
 	RootCmd.Flags().StringVarP(&rulesFilePath, "rules", "r", "", "Path to the rules file (required)")
 	RootCmd.Flags().StringVarP(&dateOutputFormat, "date-output", "d", "20060102", "Date output format")
 	RootCmd.Flags().BoolVarP(&useSubgroupMatch, "subgroup-match", "s", false, "Use single sub-group match extraction")

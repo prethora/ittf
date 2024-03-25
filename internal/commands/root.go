@@ -17,14 +17,12 @@ func execRoot() {
 
 	_, err := time.Parse(dateOutputFormat, dateOutputFormat)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: provided date output format is invalid (%s)\n", dateOutputFormat)
-		os.Exit(2)
+		os.Exit(5)
 	}
 
 	inputContent, err := os.ReadFile(inputFilePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: could not read input file: %v\n", err)
-		os.Exit(2)
+		os.Exit(1)
 	}
 
 	// Convert the input content to a string for processing.
@@ -33,12 +31,13 @@ func execRoot() {
 	// Read and parse the rules from the provided rules file path.
 	rulesList, err := rules.ReadRulesFromFile(rulesFilePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(2)
 	}
 
+	matchedAtLeastOneVendorRules := false
+
 	// Iterate through each rule in the rules list.
-	for index, rule := range rulesList {
+	for _, rule := range rulesList {
 		var vendorMatches []string // To hold matches for vendor patterns.
 		var dateMatch string       // To hold the date match.
 
@@ -57,6 +56,8 @@ func execRoot() {
 			continue
 		}
 
+		matchedAtLeastOneVendorRules = true
+
 		// Process the date rule regex pattern.
 		dateMatch, matched := rules.MatchRuleRegExp(inputContentStr, rule.Date, useSubgroupMatch)
 		if !matched {
@@ -66,8 +67,7 @@ func execRoot() {
 		// Parse the matched date string using the rule's date format.
 		date, err := time.Parse(rule.DateFormat, dateMatch)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: matched rule [%d] but failed to parse date (%s): %v\n", index+1, dateMatch, err)
-			os.Exit(2)
+			continue
 		}
 
 		// Format the parsed date according to the required output format.
@@ -123,6 +123,9 @@ func execRoot() {
 		os.Exit(0)
 	}
 
-	// If no rule matched, exit the program with status 1 indicating failure.
-	os.Exit(1)
+	if matchedAtLeastOneVendorRules {
+		os.Exit(3)
+	} else {
+		os.Exit(4)
+	}
 }

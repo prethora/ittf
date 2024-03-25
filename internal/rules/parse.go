@@ -9,44 +9,125 @@ import (
 	"time"
 )
 
+func parseRegExp(value interface{}) (*regexp.Regexp, error) {
+	switch valueValue := value.(type) {
+	case string:
+		regex, err := regexp.Compile(strings.TrimSpace(valueValue))
+		if err != nil {
+			return nil, err
+		}
+		return regex, nil
+	case int:
+		regex, err := regexp.Compile(strconv.Itoa(valueValue))
+		if err != nil {
+			return nil, err
+		}
+		return regex, nil
+	case float64:
+		regex, err := regexp.Compile(strconv.FormatFloat(valueValue, 'f', -1, 64))
+		if err != nil {
+			return nil, err
+		}
+		return regex, nil
+	default:
+		return nil, nil
+	}
+}
+
+func parseRuleRegExpIndex(value map[string]interface{}) (int, error) {
+	if index, exists := value["index"]; exists {
+		if indexInt, ok := index.(int); ok {
+			if indexInt != 0 {
+				return indexInt, nil
+			} else {
+				return 0, errors.New("index if set must be a non-zero value")
+			}
+		} else {
+			return 0, errors.New("index if set must be an integer")
+		}
+	} else {
+		return 1, nil
+	}
+}
+
+func parseRuleRegExpMatch(value map[string]interface{}) (*regexp.Regexp, error) {
+	if match, exists := value["match"]; exists {
+		regexp, err := parseRegExp(match)
+		if err != nil {
+			return nil, err
+		}
+		if regexp == nil {
+			return nil, errors.New("could not recognize match field type")
+		}
+		return regexp, nil
+	} else {
+		return nil, errors.New("the match field is required")
+	}
+}
+
+func parseRuleRegExpSubRuleRegExp(value map[string]interface{}, fieldName string) (*RuleRegExp, error) {
+	if raw, exists := value[fieldName]; exists {
+		regexpRule, err := parseRuleRegExp(raw, fmt.Sprintf(".%s", fieldName))
+		if err != nil {
+			return nil, err
+		}
+		return regexpRule, nil
+	} else {
+		return nil, nil
+	}
+}
+
 // parseRuleRegExp takes a string input and attempts to parse it into a RuleRegExp struct, which includes the one-based index
 // of the expected occurrence and the compiled regex.
-func parseRuleRegExp(raw string) (*RuleRegExp, error) {
+func parseRuleRegExp(raw interface{}, errorPrefix string) (*RuleRegExp, error) {
 	ruleRegexp := &RuleRegExp{
-		Index: 1, // The default value, if the prefix is not specified
-		RegEx: nil,
+		Index:  1, // The default value, if the prefix is not specified
+		RegEx:  nil,
+		After:  nil,
+		Before: nil,
 	}
 
-	// Trim leading and trailing whitespace from the input string.
-	raw = strings.TrimSpace(raw)
-
-	// Attempt to match and extract the index part from the beginning of the string.
-	matches := regexp.MustCompile(`^((?:\+|-)?\d+)\/`).FindStringSubmatch(raw)
-	if len(matches) > 0 {
-		// If a match is found, parse the index as an integer.
-		index, err := strconv.Atoi(matches[1])
-		if err == nil {
-			if index == 0 {
-				return nil, errors.New("the index prefix must be either negative or positive, but cannot be zero (1-based index)")
+	regexp, err := parseRegExp(raw)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", errorPrefix, err)
+	}
+	if regexp != nil {
+		ruleRegexp.RegEx = regexp
+	} else {
+		if rawValue, ok := raw.(map[string]interface{}); ok {
+			index, err := parseRuleRegExpIndex(rawValue)
+			if err != nil {
+				return nil, fmt.Errorf("%s: %v", errorPrefix, err)
 			}
-
 			ruleRegexp.Index = index
 
-			// Remove the index part from the raw string to leave only the regex pattern.
-			raw = raw[len(matches[0]):]
+			regex, err := parseRuleRegExpMatch(rawValue)
+			if err != nil {
+				return nil, fmt.Errorf("%s: %v", errorPrefix, err)
+			}
+			ruleRegexp.RegEx = regex
+
+			after, err := parseRuleRegExpSubRuleRegExp(rawValue, "after")
+			if err != nil {
+				return nil, fmt.Errorf("%s%v", errorPrefix, err)
+			}
+			if after != nil {
+				ruleRegexp.After = after
+			}
+
+			before, err := parseRuleRegExpSubRuleRegExp(rawValue, "before")
+			if err != nil {
+				return nil, fmt.Errorf("%s%v", errorPrefix, err)
+			}
+			if before != nil {
+				ruleRegexp.Before = before
+			}
+
+		} else {
+			return nil, fmt.Errorf("%s: unrecognized type", errorPrefix)
 		}
 	}
 
-	// Compile the remaining part of the string as a regex pattern.
-	regex, err := regexp.Compile(raw)
-	if err != nil {
-		return nil, err
-	}
-
-	// Assign the compiled regex to the RuleRegExp struct.
-	ruleRegexp.RegEx = regex
-
-	// Return the populated RuleRegExp struct.
 	return ruleRegexp, nil
 }
 
@@ -78,9 +159,9 @@ func parseRawRule(raw rawRule) (*Rule, error) {
 		}
 
 		// Parse each vendor regex string into a RuleRegExp struct.
-		vendorRegex, err := parseRuleRegExp(value)
+		vendorRegex, err := parseRuleRegExp(value, fmt.Sprintf("vendor regexp[%d]", index+1))
 		if err != nil {
-			return nil, fmt.Errorf("could not compile vendor regexp [%d] (%s): %v", index+1, value, err)
+			return nil, fmt.Errorf("could not parse %v", err)
 		}
 		// Append the parsed RuleRegExp to the Vendor slice of the Rule.
 		rule.Vendor = append(rule.Vendor, vendorRegex)
@@ -91,9 +172,9 @@ func parseRawRule(raw rawRule) (*Rule, error) {
 		return nil, errors.New("date regexp is empty or missing")
 	}
 
-	dateRegex, err := parseRuleRegExp(raw.Date)
+	dateRegex, err := parseRuleRegExp(raw.Date, "date regexp")
 	if err != nil {
-		return nil, fmt.Errorf("could not compile date regexp (%s): %v", raw.Date, err)
+		return nil, fmt.Errorf("could not compile %v", err)
 	}
 
 	rule.Date = dateRegex
