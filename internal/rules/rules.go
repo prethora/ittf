@@ -9,10 +9,11 @@ import (
 )
 
 type rawRule struct {
-	Vendor     []interface{} `yaml:"vendor"`
-	Date       interface{}   `yaml:"date"`
-	DateFormat string        `yaml:"dateFormat"`
-	FileName   string        `yaml:"fileName"`
+	Vendor     []interface{} `yaml:"Matches"`
+	Date       interface{}   `yaml:"Date"`
+	DateFormat string        `yaml:"DateFormat"`
+	BaseName   string        `yaml:"Basename"`
+	FileName   string        `yaml:"Output"`
 }
 
 type RuleRegExp struct {
@@ -26,6 +27,7 @@ type Rule struct {
 	Vendor     []*RuleRegExp
 	Date       *RuleRegExp
 	DateFormat string
+	BaseName   string
 	FileName   string
 }
 

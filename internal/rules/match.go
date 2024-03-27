@@ -2,14 +2,68 @@ package rules
 
 import (
 	"math"
+	"regexp"
+	"strings"
+	"time"
 )
 
-func matchRuleRegExpIndex(str string, ruleRegExp *RuleRegExp, useSubgroupMatch bool) ([]int, bool) {
+func replaceUsingMap(s string, replacements map[string]string) string {
+	for old, new := range replacements {
+		s = strings.Replace(s, old, new, -1) // -1 means replace all occurrences
+	}
+	return s
+}
+
+func PreProcessDate(dateStr string) string {
+	regex := regexp.MustCompile(`(?i)(\d+)(st|nd|rd|th)`)
+	replacements := map[string]string{
+		"Janu ": "Jan ",
+		"janu ": "jan ",
+		"Febr ": "Feb ",
+		"febr ": "feb ",
+		"Marc ": "Mar ",
+		"marc ": "mar ",
+		"Apri ": "Apr ",
+		"apri ": "apr ",
+		"Augu ": "Aug ",
+		"augu ": "aug ",
+		"Sept ": "Sep ",
+		"sept ": "sep ",
+		"Octo ": "Oct ",
+		"octo ": "oct ",
+		"Nove ": "Nov ",
+		"nove ": "nov ",
+		"Dece ": "Dec ",
+		"dece ": "dec ",
+		// Versions with "/"
+		"Janu/": "Jan/",
+		"janu/": "jan/",
+		"Febr/": "Feb/",
+		"febr/": "feb/",
+		"Marc/": "Mar/",
+		"marc/": "mar/",
+		"Apri/": "Apr/",
+		"apri/": "apr/",
+		"Augu/": "Aug/",
+		"augu/": "aug/",
+		"Sept/": "Sep/",
+		"sept/": "sep/",
+		"Octo/": "Oct/",
+		"octo/": "oct/",
+		"Nove/": "Nov/",
+		"nove/": "nov/",
+		"Dece/": "Dec/",
+		"dece/": "dec/",
+	}
+	return replaceUsingMap(regex.ReplaceAllString(dateStr, `$1`), replacements)
+}
+
+func matchRuleRegExpIndex(str string, ruleRegExp *RuleRegExp, useSubgroupMatch bool, mustMatchDateFormat string) ([]int, bool) {
 	beg := 0
 	end := len(str)
 
 	if ruleRegExp.After != nil {
-		if match, matched := matchRuleRegExpIndex(str, ruleRegExp.After, false); matched {
+		if match, matched := matchRuleRegExpIndex(str, ruleRegExp.After, false, ""); matched {
 			beg = match[1]
 		} else {
 			return nil, false
@@ -17,7 +71,7 @@ func matchRuleRegExpIndex(str string, ruleRegExp *RuleRegExp, useSubgroupMatch b
 	}
 
 	if ruleRegExp.Before != nil {
-		if match, matched := matchRuleRegExpIndex(str, ruleRegExp.Before, false); matched {
+		if match, matched := matchRuleRegExpIndex(str, ruleRegExp.Before, false, ""); matched {
 			end = match[0]
 		} else {
 			return nil, false
@@ -30,14 +84,29 @@ func matchRuleRegExpIndex(str string, ruleRegExp *RuleRegExp, useSubgroupMatch b
 
 	str = str[beg:end]
 
-	maxSearch := ruleRegExp.Index
 	requiredCount := int(math.Abs(float64(ruleRegExp.Index)))
 
-	if ruleRegExp.Index < 0 {
-		maxSearch = -1 // If the index is negative, do not limit the number of occurences, as we are counting backwards.
+	matchesSet := ruleRegExp.RegEx.FindAllStringSubmatchIndex(str, -1)
+
+	if mustMatchDateFormat != "" {
+		_matchesSet := matchesSet
+		matchesSet = [][]int{}
+
+		for _, matches := range _matchesSet {
+			var result []int
+			if len(matches) == 4 && useSubgroupMatch {
+				result = matches[2:]
+			} else {
+				result = matches[0:2]
+			}
+			matchStr := str[result[0]:result[1]]
+			_, err := time.Parse(mustMatchDateFormat, PreProcessDate(matchStr))
+			if err == nil {
+				matchesSet = append(matchesSet, matches)
+			}
+		}
 	}
 
-	matchesSet := ruleRegExp.RegEx.FindAllStringSubmatchIndex(str, maxSearch)
 	if requiredCount <= len(matchesSet) { // check if enough matches were found to include the provided index.
 		var requiredIndex int
 
@@ -67,8 +136,8 @@ func matchRuleRegExpIndex(str string, ruleRegExp *RuleRegExp, useSubgroupMatch b
 	}
 }
 
-func MatchRuleRegExp(str string, ruleRegExp *RuleRegExp, useSubgroupMatch bool) (string, bool) {
-	if match, matched := matchRuleRegExpIndex(str, ruleRegExp, useSubgroupMatch); matched {
+func MatchRuleRegExp(str string, ruleRegExp *RuleRegExp, useSubgroupMatch bool, mustMatchDateFormat string) (string, bool) {
+	if match, matched := matchRuleRegExpIndex(str, ruleRegExp, useSubgroupMatch, mustMatchDateFormat); matched {
 		return str[match[0]:match[1]], true
 	} else {
 		return "", false

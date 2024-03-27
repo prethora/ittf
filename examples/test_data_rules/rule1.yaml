@@ -1,0 +1,6 @@
+- Matches: ["United Kingdom", "England", "Newcastle"]
+  Basename: Test 1
+  Date: 
+    After: Newcastle
+    Match: \d+\w+\s+\w+\s+\d+    
+  DateFormat: 02 January 2006

@@ -1,0 +1,4 @@
+- Matches: ["United Kingdom", "England", "Chester"]
+  Basename: Test 6
+  Date: \d+/\w+/\d+
+  DateFormat: 2/Jan/2006

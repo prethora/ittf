@@ -35,15 +35,15 @@ func parseRegExp(value interface{}) (*regexp.Regexp, error) {
 }
 
 func parseRuleRegExpIndex(value map[string]interface{}) (int, error) {
-	if index, exists := value["index"]; exists {
+	if index, exists := value["Index"]; exists {
 		if indexInt, ok := index.(int); ok {
 			if indexInt != 0 {
 				return indexInt, nil
 			} else {
-				return 0, errors.New("index if set must be a non-zero value")
+				return 0, errors.New("'Index' if set must be a non-zero value")
 			}
 		} else {
-			return 0, errors.New("index if set must be an integer")
+			return 0, errors.New("'Index' if set must be an integer")
 		}
 	} else {
 		return 1, nil
@@ -51,7 +51,7 @@ func parseRuleRegExpIndex(value map[string]interface{}) (int, error) {
 }
 
 func parseRuleRegExpMatch(value map[string]interface{}) (*regexp.Regexp, error) {
-	if match, exists := value["match"]; exists {
+	if match, exists := value["Match"]; exists {
 		regexp, err := parseRegExp(match)
 		if err != nil {
 			return nil, err
@@ -107,7 +107,7 @@ func parseRuleRegExp(raw interface{}, errorPrefix string) (*RuleRegExp, error) {
 			}
 			ruleRegexp.RegEx = regex
 
-			after, err := parseRuleRegExpSubRuleRegExp(rawValue, "after")
+			after, err := parseRuleRegExpSubRuleRegExp(rawValue, "After")
 			if err != nil {
 				return nil, fmt.Errorf("%s%v", errorPrefix, err)
 			}
@@ -115,7 +115,7 @@ func parseRuleRegExp(raw interface{}, errorPrefix string) (*RuleRegExp, error) {
 				ruleRegexp.After = after
 			}
 
-			before, err := parseRuleRegExpSubRuleRegExp(rawValue, "before")
+			before, err := parseRuleRegExpSubRuleRegExp(rawValue, "Before")
 			if err != nil {
 				return nil, fmt.Errorf("%s%v", errorPrefix, err)
 			}
@@ -191,17 +191,11 @@ func parseRawRule(raw rawRule) (*Rule, error) {
 		return nil, fmt.Errorf("invalid dateFormat (%s)", raw.DateFormat)
 	}
 
-	rule.DateFormat = raw.DateFormat
+	rule.DateFormat = strings.TrimSpace(raw.DateFormat)
+	rule.BaseName = strings.TrimSpace(raw.BaseName)
+	rule.FileName = strings.TrimSpace(raw.FileName)
 
-	// Trim leading and trailing whitespace from the FileName field and set a default value if it's empty.
-	raw.FileName = strings.TrimSpace(raw.FileName)
-	if raw.FileName == "" {
-		rule.FileName = "(date) - (1).pdf"
-	} else {
-		rule.FileName = raw.FileName
-	}
-
-	if !strings.Contains(rule.FileName, "(date)") {
+	if raw.FileName != "" && !strings.Contains(rule.FileName, "(date)") {
 		return nil, fmt.Errorf("invalid fileName format (%s): it does not contain the (date) placeholder", rule.FileName)
 	}
 

@@ -1,0 +1,127 @@
+Google Ireland Limited
+Gordon House
+Barrow Street
+
+Invoice
+
+Dublin 4
+Ireland
+
+Invoice number: XXXXXXXXXX-XX
+
+VAT number: XX XXXXXXXXXX
+
+Bill to
+XXXXXXXXXXXX
+XXXXXXXXXXXX
+XXXXXXXXXXXX
+XXXXXXXXXXXX
+XXXXXXXXXXXX
+XXXXXXXXXXXX
+XXXXXXXXXXXX
+VAT number: XXXXXXXXXXXX
+
+Details
+
+Total in GBP
+
+Invoice number .
+Invoice date .
+
+XXXXXXXXXXXX-XX
+
+Billing ID .
+
+XXXX-XXXX-XXXX
+
+30 Apr 2021
+
+h£X.XX
+
+Subtotal in GBP
+
+£X.XX
+
+VAT (0%)
+
+£X.XX
+
+Total in GBP
+
+£X.XX
+
+For reference in EUR:
+Subtotal in EUR
+
+€0.00
+
+VAT (0%)
+
+€0.00
+
+Total in EUR
+
+€0.00
+
+Exchange rate GBP 1 : EUR 1.151
+Google Ireland's Commercial Register Number – 368047
+This invoice was generated electronically and automatically, without a cash register.
+This is the original electronic version.
+
+Page 1 of 2
+
+Invoice
+
+Invoice number: XXXXXXXXXX-XX
+
+Record of Costs and Taxes
+Date
+
+Description
+
+30 Apr 2021
+
+Google Cloud
+
+Amount(£)
+
+Amount(€)
+
+0.00
+
+0.00
+
+Subtotal in GBP
+VAT (0%)
+
+£X.XX
+£X.XX
+
+£X.XX
+
+Total in GBP
+
+Record of payments received
+Date
+
+Description
+
+16 Apr
+2021
+
+Automatic payment: American Express • • • • XXX-XXXXXXXXXX-XXXXXXXXXXx
+Total in GBP
+
+Payment(£)
+
+Payment(€)
+
+-X.XX
+
+-X.XX
+
+-£X.XX
+
+Page 2 of 2
+
+

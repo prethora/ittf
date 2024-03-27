@@ -1,0 +1,6 @@
+- Matches: ["United Kingdom", "England", "Hastings"]
+  Basename: Test 9
+  Date: 
+    After: Hastings
+    Match: \d+-\d+-\d+
+  DateFormat: "2006-01-02"

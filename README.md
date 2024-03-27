@@ -41,18 +41,33 @@ Flags:
 * 4 - Error: File did not match any rules
 * 5 - Error: Provided date output format is invalid
 
+## Examples/Testing
+
+See the `examples` folder for test input files and rules. To run a set of tests, run:
+
+#### On Linux/MacOs
+
+```bash
+chmod +x ./test.sh
+./test.sh
+```
+
+#### On Windows 
+
+```bash
+./test.bat
+```
+
 ## Rules file format
 
 A rules file is expected to be a YAML file in the following format:
 
 ```yaml
-- vendor: 
-    - vendor query 1
-    - vendor query 2
-    - ...
-  date: date query
-  dateFormat: a golang time format
-  fileName: (date) - (1).pdf        # this is optional, and if omitted defaults to this value
+- BaseName: "Google Cloud"
+  Matches: ["vendor query 1","vendor query 2",...]
+  Date: date query
+  DateFormat: a golang time format
+  FileName: (date) - (basename).pdf        # this is optional, and if omitted defaults to this value
 - ...
 - ...
 ```
@@ -72,48 +87,46 @@ This will output any errors if present, or a success message with a rule count. 
 A query in its simplest form is just a regexp string. However, a query can also be a map with the following fields:
 
 ```yaml
-match: regexp         # required
-index: 1              # optional - defaults to 1
-after: query          # optional
-before: query         # optional
+Match: regexp         # required
+Index: 1              # optional - defaults to 1
+After: query          # optional
+Before: query         # optional
 ```
 
 This is a powerful setup which gives you a lot of flexibility on how to define what you are looking for in an invoice.
 
 ### index
 
-The `index` field is a one-based positive or negative index which both sets a requirement for how many times the regexp should match (at least) and which of the matches to extract. For example:
+The `Index` field is a one-based positive or negative index which both sets a requirement for how many times the regexp should match (at least) and which of the matches to extract. For example:
 
-* `index: 3` means at least 3 matches should exist, and the third one should be extracted
-* `index: -1` means at least 1 match should exist, and the last one should be extracted
-* `index: -2` means at least 2 matches should exist, and the one before last should be extracted
+* `Index: 3` means at least 3 matches should exist, and the third one should be extracted
+* `Index: -1` means at least 1 match should exist, and the last one should be extracted
+* `Index: -2` means at least 2 matches should exist, and the one before last should be extracted
 
-The `index` field is optional, and defaults to `1`
+The `Index` field is optional, and defaults to `1`
 
-### after
+### After
 
-The `after` field is optional and can itself be a query (meaning an after query can be a regexp string, but also a map with an optional index and even its own before/after queries etc). The point of the `after` field is to find a string within the input string which acts as an opening boundary. In other words, the query's regexp will only apply to the text that comes AFTER the boundary. If omitted, the opening boundary is naturally the beginning of the input string. If the `after` query is set and fails to match, the whole query fails.
+The `After` field is optional and can itself be a query (meaning an after query can be a regexp string, but also a map with an optional index and even its own before/after queries etc). The point of the `After` field is to find a string within the input string which acts as an opening boundary. In other words, the query's regexp will only apply to the text that comes AFTER the boundary. If omitted, the opening boundary is naturally the beginning of the input string. If the `After` query is set and fails to match, the whole query fails.
 
-### before
+### Before
 
-The `before` field is optional and can itself be a query (meaning a before query can be a regexp string, but also a map with an optional index and even its own before/after query etc). The point of the `before` field is to find a string within the input string which acts as a closing boundary. In other words, the query's regexp will only apply to the text that comes BEFORE the boundary. If omitted, the closing boundary is naturally the end of the input string. If the `before` query is set and fails to match, the whole query fails. 
+The `Before` field is optional and can itself be a query (meaning a before query can be a regexp string, but also a map with an optional index and even its own before/after query etc). The point of the `Before` field is to find a string within the input string which acts as a closing boundary. In other words, the query's regexp will only apply to the text that comes BEFORE the boundary. If omitted, the closing boundary is naturally the end of the input string. If the `Before` query is set and fails to match, the whole query fails. 
 
 ### Boundaries
 
-The `before` field applies to the whole input string and is not affected by the `after` field and vice versa. Both boundary fields can be used conjointly to apply the query's regexp to an inner region of the input string. If both boundaries are used together and the `before` matched string comes before or overlaps with the `after` matched string, the query fails.
+The `Before` field applies to the whole input string and is not affected by the `After` field and vice versa. Both boundary fields can be used conjointly to apply the query's regexp to an inner region of the input string. If both boundaries are used together and the `Before` matched string comes before or overlaps with the `After` matched string, the query fails.
 
 ## RegExp Single Subgroup Matching
 
-The string matched by a vendor or date query is extracted and can be used in the file name output (through configuring the fileName field). By default, the string used is the string matched by the query's regexp as a whole. If you want to use a specific part of the match instead, you can add the -s flag to the command and use a single subgroup in the regexp.
+The string matched by a vendor or date query is extracted and can be used in the file name output (through configuring the `FileName` field). By default, the string used is the string matched by the query's regexp as a whole. If you want to use a specific part of the match instead, you can add the -s flag to the command and use a single subgroup in the regexp.
 
 For example:
 
 ```yaml
-- vendor:
-    - for (Google Cloud) Services
-    - ...
+- Matches: ["for (Google Cloud) Services",...]
   ...
-  fileName: (date) - (1).pdf  
+  FileName: (date) - (1).pdf  
 ```
 
 The first vendor query regexp here will match "for Google Cloud Services" in the invoice text input but the file name output might be `20240425 - Google Cloud.pdf`. This gives you some flexibility in situations where you want to more liberally use the regexp to identify the invoice source, but also have fine-grained control over what you use in the file name output.
@@ -124,13 +137,15 @@ Don't forget though, this feature is not enabled by default, you need to add the
 
 ## Date Format
 
-The `dateFormat` field for a rule is required to tell ittf how to parse the matched date string into a recognized time. In golang, a time format is defined as how you would represent a specific language-defined time. The time in question is:
+The `DateFormat` field for a rule is required to tell ittf how to parse the matched date string into a recognized time. In golang, a time format is defined as how you would represent a specific language-defined time. The time in question is:
 
 `Mon Jan 02 15:04:05 MST 2006`
 
 So if you want to specify a format as `MM/DD/YYYY` you actually have to specify it as `01/02/2006` - in other words, you need to specify it as how you would display January 2, 2006 in the format you want.
 
-So for each rule, you need to set a `dateFormat` according to the date you are extracting.
+So for each rule, you need to set a `DateFormat` according to the date you are extracting.
+
+Note: if your month is in uppercase, you shouldn't include the format month in uppercase, always use either Jan or January depending on how many letters are used for the month. Never use anything but 3 characters or the whole month.
 
 Golang supports 2-digit years, so if you need to support such an archaic invoice, instead of using `2006` in your `dateFormat`, you would simply use `06`. 
 
@@ -138,7 +153,7 @@ An invalid date such a Feb 31, 2024 might match but it will cause the rule to fa
 
 ## File Name Format
 
-The fileName field for a rule is optional and defaults to `(date) - (1).pdf`. If you are explicitly specifying it however, the `(date)` placeholder is required. You can optionally use one-based index placeholders within brackets to insert the matched string for a vendor query. So `(3) - (date).pdf` might result in an output of `Google Cloud - 20240325.pdf` if the third vendor query matched to `Google Cloud`.
+The `FileName` field for a rule is optional and defaults to `(date) - (basename).pdf` if the `BaseName` field has been set, or `(date) - (1).pdf` if it hasn't. If you are explicitly specifying it however, the `(date)` placeholder is required. You can optionally use one-based index placeholders within brackets to insert the matched string for a vendor query. So `(3) - (date).pdf` might result in an output of `Google Cloud - 20240325.pdf` if the third vendor query matched to `Google Cloud`.
 
 ## Output Date Format
 

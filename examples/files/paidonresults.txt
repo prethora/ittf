@@ -1,0 +1,17 @@
+Invoice To:
+
+Invoice Issued By:
+
+Paid On Results Limited
+Invoice Date
+Due Date
+Main Affiliate ID
+Invoice Number
+
+21/MAR/2024
+
+11/APR/2024
+
+Order Description
+
+Commision payment for all valid sales to 21/03/2024 (XXXXX)

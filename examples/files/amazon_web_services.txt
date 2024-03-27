@@ -1,0 +1,136 @@
+VAT Invoice
+Email or talk to us about your AWS account or bill, visit console.aws.amazon.com/support
+More information regarding your service charges is available by accessing your Billing Management Console
+
+Account number:
+
+Invoice Summary
+
+Address:
+
+VAT Invoice Number:
+VAT Invoice Date:
+
+July 3, 2020
+
+TOTAL AMOUNT
+
+USD XX.XX
+
+TOTAL VAT
+
+GBP XX.XX
+
+Tax Registration Number:
+
+XXXXXXXXXXXX
+
+This VAT Invoice is for the billing period June 1 - June 30, 2020
+This is not a bill as these charges have been applied to AWS Bill #XXXXXXXXXXX.
+
+Invoice Summary
+
+Service Charges
+
+Charges
+
+Credits
+
+Net Charges
+(After Credits,
+excl. VAT)
+
+VAT 20%
+
+Total
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+VAT in GBP (1 USD =
+0.79944 GBP )
+
+GBP XX.XX
+
+Detailed Usage
+Charges
+(Excl. VAT)
+
+Credits
+
+Net Charges
+(After Credits,
+excl. VAT)
+
+VAT 20%
+
+Total
+
+AWS CloudHSM
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+AmazonCloudWatch
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+Amazon Elastic Compute
+Cloud
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+Account Total
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+USD XX.XX
+
+Account # XXXXXXXXXXXXX
+
+AMAZON WEB SERVICES EMEA SARL
+38 AVENUE JOHN F. KENNEDY, L-1855 LUXEMBOURG
+R.C.S. Luxembourg: B186284
+AMAZON WEB SERVICES EMEA SARL, UK BRANCH
+Registered Office: 1 Principal Place, Worship Street, London, EC2A 2FA, UNITED KINGDOM
+Registered in England and Wales ▪ UK Establishment No. BR019315 • VAT No. GB283644382
+
+1/1
+
+

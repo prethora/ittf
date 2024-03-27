@@ -1,0 +1,6 @@
+- Matches: ["United Kingdom", "Wales", "Cardiff"]
+  Basename: Test 4
+  Date: 
+    After: Cardiff
+    Match: \d+\w+\s+\w+\s+\d+
+  DateFormat: 2 January 2006

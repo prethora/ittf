@@ -1,0 +1,6 @@
+- Matches: ["United Kingdom", "England", "Manchester"]
+  Basename: Test 7
+  Date: 
+    After: Manchester
+    Match: \d+\w+\s+\w+\s+\d+
+  DateFormat: 2 Jan 06

@@ -43,7 +43,7 @@ func execRoot() {
 
 		// Process each vendor rule regex pattern.
 		for _, ruleRegExp := range rule.Vendor {
-			match, matched := rules.MatchRuleRegExp(inputContentStr, ruleRegExp, useSubgroupMatch)
+			match, matched := rules.MatchRuleRegExp(inputContentStr, ruleRegExp, useSubgroupMatch, "")
 			if matched {
 				vendorMatches = append(vendorMatches, match)
 			} else {
@@ -59,13 +59,13 @@ func execRoot() {
 		matchedAtLeastOneVendorRules = true
 
 		// Process the date rule regex pattern.
-		dateMatch, matched := rules.MatchRuleRegExp(inputContentStr, rule.Date, useSubgroupMatch)
+		dateMatch, matched := rules.MatchRuleRegExp(inputContentStr, rule.Date, useSubgroupMatch, rule.DateFormat)
 		if !matched {
 			continue
 		}
 
 		// Parse the matched date string using the rule's date format.
-		date, err := time.Parse(rule.DateFormat, dateMatch)
+		date, err := time.Parse(rule.DateFormat, rules.PreProcessDate(dateMatch))
 		if err != nil {
 			continue
 		}
@@ -84,12 +84,24 @@ func execRoot() {
 		// Add the formatted date to the map.
 		filePathTemplateMap["(date)"] = dateOutput
 
-		// Start constructing the output file name using a builder for efficient string concatenation.
+		// Add the baseName to the map.
+		filePathTemplateMap["(basename)"] = rule.BaseName
+
 		fileName := rule.FileName
+
+		if fileName == "" {
+			if rule.BaseName != "" {
+				fileName = "(date) - (basename).pdf"
+			} else {
+				fileName = "(date) - (1).pdf"
+			}
+		}
+
+		// Start constructing the output file name using a builder for efficient string concatenation.
 		var builder strings.Builder
 
 		// Compile a regex to match placeholders in the file name template.
-		sepRegex := regexp.MustCompile(`\([date0-9]+\)`)
+		sepRegex := regexp.MustCompile(`\([a-z0-9]+\)`)
 
 		// Loop through the file name, replacing placeholders with their corresponding values from the map.
 		for {
