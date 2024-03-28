@@ -16,7 +16,7 @@ var RootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		execRoot()
 	},
-	Version: "1.0.2",
+	Version: "1.0.3",
 }
 
 var validateCmd = &cobra.Command{
@@ -29,10 +29,20 @@ var validateCmd = &cobra.Command{
 	},
 }
 
+var aliasesCmd = &cobra.Command{
+	Use:   "aliases",
+	Short: "Output a list of configured aliases",
+	Args:  cobra.ExactArgs(0),
+	Run: func(cmd *cobra.Command, args []string) {
+		execAliases()
+	},
+}
+
 func init() {
 	RootCmd.CompletionOptions.DisableDefaultCmd = true
 
 	RootCmd.AddCommand(validateCmd)
+	RootCmd.AddCommand(aliasesCmd)
 
 	RootCmd.Flags().StringVarP(&inputFilePath, "file", "f", "", "Path to the input file (required)")
 	RootCmd.Flags().StringVarP(&rulesFilePath, "rules", "r", "", "Path to the rules file (required)")

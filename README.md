@@ -1,4 +1,4 @@
-# ittf (Invoice Text To Filename)
+# ittf (Invoice Text To Filename) [v1.0.3]
 
 ## Installation
 
@@ -68,6 +68,21 @@ A rules file is expected to be a YAML file in the following format:
   Date: date query
   DateFormat: a golang time format
   FileName: (date) - (basename).pdf        # this is optional, and if omitted defaults to this value
+- ...
+- ...
+```
+
+## Aliases
+
+You can maintain a map of aliases in the `internal/aliases/aliases.go` file. Best to use raw string literals (enclosed in ``) for 
+the values so you can include regexps without the need to escape characters. You can insert alias values by prefixing their names with a `$` character anywhere a regexp would be accepted and also as the value for the `DateFormat` field.
+
+For example:
+
+```yaml
+  ...
+  Date: $short
+  DateFormat: $YYYY-MM-DD
 - ...
 - ...
 ```

@@ -7,12 +7,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/prethora/ittf/internal/aliases"
 )
 
 func parseRegExp(value interface{}) (*regexp.Regexp, error) {
 	switch valueValue := value.(type) {
 	case string:
-		regex, err := regexp.Compile(strings.TrimSpace(valueValue))
+		regex, err := regexp.Compile(aliases.PreprocessAlias(strings.TrimSpace(valueValue)))
 		if err != nil {
 			return nil, err
 		}
@@ -191,7 +193,7 @@ func parseRawRule(raw rawRule) (*Rule, error) {
 		return nil, fmt.Errorf("invalid dateFormat (%s)", raw.DateFormat)
 	}
 
-	rule.DateFormat = strings.TrimSpace(raw.DateFormat)
+	rule.DateFormat = aliases.PreprocessAlias(strings.TrimSpace(raw.DateFormat))
 	rule.BaseName = strings.TrimSpace(raw.BaseName)
 	rule.FileName = strings.TrimSpace(raw.FileName)
 
