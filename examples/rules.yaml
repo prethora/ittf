@@ -7,7 +7,7 @@
   Date: 
     After: VAT Invoice Date
     Match: \w+\s+\d+,\s+\d+
-  DateFormat: January 2, 2006
+  DateFormat: $amazon test date
 - Basename: Google Cloud
   Matches: ["Google Cloud", "Invoice number", "VAT number"]
   Date: 
