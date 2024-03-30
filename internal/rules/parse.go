@@ -14,7 +14,7 @@ import (
 func parseRegExp(value interface{}) (*regexp.Regexp, error) {
 	switch valueValue := value.(type) {
 	case string:
-		regex, err := regexp.Compile(aliases.PreprocessAlias(strings.TrimSpace(valueValue)))
+		regex, err := regexp.Compile(strings.TrimSpace(valueValue))
 		if err != nil {
 			return nil, err
 		}
@@ -169,12 +169,33 @@ func parseRawRule(raw rawRule) (*Rule, error) {
 		rule.Vendor = append(rule.Vendor, vendorRegex)
 	}
 
-	// Validate that the date field was provided in the rules file and parse it.
+	// Validate that the date field was provided in the rules file.
 	if raw.Date == "" {
-		return nil, errors.New("date regexp is empty or missing")
+		return nil, errors.New("date alias is empty or missing")
 	}
 
-	dateRegex, err := parseRuleRegExp(raw.Date, "date regexp")
+	aliasValue, exists := aliases.Aliases[raw.Date]
+	if !exists {
+		return nil, fmt.Errorf("no alias found matching '%s'", raw.Date)
+	}
+
+	virtualRawDateRegExpRule := map[string]interface{}{
+		"Match": aliasValue.Match,
+	}
+
+	if raw.Index != 0 {
+		virtualRawDateRegExpRule["Index"] = raw.Index
+	}
+
+	if raw.After != nil {
+		virtualRawDateRegExpRule["After"] = raw.After
+	}
+
+	if raw.Before != nil {
+		virtualRawDateRegExpRule["Before"] = raw.Before
+	}
+
+	dateRegex, err := parseRuleRegExp(virtualRawDateRegExpRule, "date regexp")
 	if err != nil {
 		return nil, fmt.Errorf("could not compile %v", err)
 	}
@@ -182,18 +203,18 @@ func parseRawRule(raw rawRule) (*Rule, error) {
 	rule.Date = dateRegex
 
 	// Trim leading and trailing whitespace from the dateFormat field and validate it.
-	raw.DateFormat = strings.TrimSpace(raw.DateFormat)
-	if raw.DateFormat == "" {
+	aliasValue.Format = strings.TrimSpace(aliasValue.Format)
+	if aliasValue.Format == "" {
 		return nil, errors.New("dateFormat is empty or missing")
 	}
 
 	// Validate the DateFormat by trying to parse it with itself (ensuring it's a valid date format string).
-	_, err = time.Parse(raw.DateFormat, raw.DateFormat)
+	_, err = time.Parse(aliasValue.Format, aliasValue.Format)
 	if err != nil {
-		return nil, fmt.Errorf("invalid dateFormat (%s)", raw.DateFormat)
+		return nil, fmt.Errorf("invalid dateFormat (%s)", aliasValue.Format)
 	}
 
-	rule.DateFormat = aliases.PreprocessAlias(strings.TrimSpace(raw.DateFormat))
+	rule.DateFormat = strings.TrimSpace(aliasValue.Format)
 	rule.BaseName = strings.TrimSpace(raw.BaseName)
 	rule.FileName = strings.TrimSpace(raw.FileName)
 

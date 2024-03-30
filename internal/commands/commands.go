@@ -16,7 +16,7 @@ var RootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		execRoot()
 	},
-	Version: "1.0.4",
+	Version: "1.0.5",
 }
 
 var validateCmd = &cobra.Command{

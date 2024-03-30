@@ -1,7 +1,5 @@
 - Matches: ["United Kingdom", "England", "York"]
   Basename: Test 8
-  Date: 
-    After: York
-    Index: 2
-    Match: \d+-\d+-\d+
-  DateFormat: 06-01-02
+  After: York
+  Index: 2
+  Date: YY-MM-DD

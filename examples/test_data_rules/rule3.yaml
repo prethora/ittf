@@ -1,6 +1,4 @@
 - Matches: ["United Kingdom", "England", "London"]
   Basename: Test 3
-  Date: 
-    After: London
-    Match: \d+\w+\s+\w+\s+\d+
-  DateFormat: 2 January 2006
+  After: London
+  Date: DDth MMMM YYYY

@@ -1,6 +1,4 @@
 - Matches: ["United Kingdom", "England", "Chester"]
   Basename: Test 5
-  Date: 
-    After: Chester
-    Match: \d+\s+\w+\s+\d+
-  DateFormat: 02 Jan 06
+  After: Chester
+  Date: DD M YY

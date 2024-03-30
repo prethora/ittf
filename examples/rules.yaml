@@ -1,23 +1,16 @@
 - Basename: HGF
   Matches: ["HGF Limited", "INVOICE No"]
-  Date: \d+/\w+/\d+
-  DateFormat: $short
+  Date: DD/M/YYYY
 - Basename: Amazon Invoice
   Matches: ["AMAZON WEB SERVICES", "VAT Invoice"]
-  Date: 
-    After: VAT Invoice Date
-    Match: \w+\s+\d+,\s+\d+
-  DateFormat: $amazon test date
+  After: VAT Invoice Date
+  Date: MMMM DD, YYYY
 - Basename: Google Cloud
   Matches: ["Google Cloud", "Invoice number", "VAT number"]
-  Date: 
-    After: Invoice date
-    Match: $foobar
-  DateFormat: 02 Jan 2006
+  After: Invoice date
+  Date: DD M YYYY
 - Basename: Paid On Results
   Matches: ["Paid On Results Limited", "Invoice Number"]
-  Date: 
-    After: Invoice Number
-    Index: 2
-    Match: \d+/\w+/\d+
-  DateFormat: $short
+  After: Invoice Number
+  Index: 2
+  Date: DD/M/YYYY

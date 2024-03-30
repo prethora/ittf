@@ -1,7 +1,5 @@
 - Matches: ["United Kingdom", "Scotland", "Edinburgh"]
   Basename: Test 2
-  Date: 
-    After: Scotland
-    Index: 2
-    Match: \d+\w+\s+\w+\s+\d+
-  DateFormat: 2 January 06
+  After: Scotland
+  Index: 2
+  Date: Dth MMMM YY

@@ -1,4 +1,4 @@
-# ittf (Invoice Text To Filename) [v1.0.3]
+# ittf (Invoice Text To Filename) [v1.0.5]
 
 ## Installation
 
@@ -65,27 +65,18 @@ A rules file is expected to be a YAML file in the following format:
 ```yaml
 - BaseName: "Google Cloud"
   Matches: ["vendor query 1","vendor query 2",...]
-  Date: date query
-  DateFormat: a golang time format
+  After: optional after query for date
+  Before: optional before query for date
+  Index: optional index of date match - defaults to 1
+  Date: date alias
   FileName: (date) - (basename).pdf        # this is optional, and if omitted defaults to this value
 - ...
 - ...
 ```
 
-## Aliases
+## Date Aliases
 
-You can maintain a map of aliases in the `internal/aliases/aliases.go` file. Best to use raw string literals (enclosed in ``) for 
-the values so you can include regexps without the need to escape characters. You can insert alias values by prefixing their names with a `$` character anywhere a regexp would be accepted and also as the value for the `DateFormat` field.
-
-For example:
-
-```yaml
-  ...
-  Date: $short
-  DateFormat: $YYYY-MM-DD
-- ...
-- ...
-```
+You can maintain a map of aliases in the `internal/aliases/aliases.go` file. Each alias maps to a pair of `Match` and `Format` fields. `Match` is the regexp used to extract a string from the input and `Format` is the golang time format used to interpret it.
 
 ## Rules File Validation
 
