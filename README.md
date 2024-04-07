@@ -1,4 +1,8 @@
-# ittf (Invoice Text To Filename) [v1.0.5]
+# ittf (Invoice Text To Filename) [v1.0.6]
+
+## Release Notes
+
+`v1.0.6` now uses `pcre2` as its RegExp engine. 
 
 ## Installation
 

@@ -3,3 +3,5 @@ bin
 ittf
 test_text
 test_rules.yaml
+Dockerfile
+run-in-docker.sh

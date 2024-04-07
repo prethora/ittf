@@ -3,8 +3,8 @@ package rules
 import (
 	"fmt"
 	"os"
-	"regexp"
 
+	"github.com/prethora/ittf/internal/pcre2regexp"
 	"gopkg.in/yaml.v3"
 )
 
@@ -20,7 +20,7 @@ type rawRule struct {
 
 type RuleRegExp struct {
 	Index  int
-	RegEx  *regexp.Regexp
+	RegEx  *pcre2regexp.Regexp
 	After  *RuleRegExp
 	Before *RuleRegExp
 }

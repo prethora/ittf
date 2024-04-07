@@ -3,30 +3,30 @@ package rules
 import (
 	"errors"
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/prethora/ittf/internal/aliases"
+	"github.com/prethora/ittf/internal/pcre2regexp"
 )
 
-func parseRegExp(value interface{}) (*regexp.Regexp, error) {
+func parseRegExp(value interface{}) (*pcre2regexp.Regexp, error) {
 	switch valueValue := value.(type) {
 	case string:
-		regex, err := regexp.Compile(strings.TrimSpace(valueValue))
+		regex, err := pcre2regexp.Compile(strings.TrimSpace(valueValue))
 		if err != nil {
 			return nil, err
 		}
 		return regex, nil
 	case int:
-		regex, err := regexp.Compile(strconv.Itoa(valueValue))
+		regex, err := pcre2regexp.Compile(strconv.Itoa(valueValue))
 		if err != nil {
 			return nil, err
 		}
 		return regex, nil
 	case float64:
-		regex, err := regexp.Compile(strconv.FormatFloat(valueValue, 'f', -1, 64))
+		regex, err := pcre2regexp.Compile(strconv.FormatFloat(valueValue, 'f', -1, 64))
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +52,7 @@ func parseRuleRegExpIndex(value map[string]interface{}) (int, error) {
 	}
 }
 
-func parseRuleRegExpMatch(value map[string]interface{}) (*regexp.Regexp, error) {
+func parseRuleRegExpMatch(value map[string]interface{}) (*pcre2regexp.Regexp, error) {
 	if match, exists := value["Match"]; exists {
 		regexp, err := parseRegExp(match)
 		if err != nil {

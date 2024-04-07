@@ -86,7 +86,7 @@ func matchRuleRegExpIndex(str string, ruleRegExp *RuleRegExp, useSubgroupMatch b
 
 	requiredCount := int(math.Abs(float64(ruleRegExp.Index)))
 
-	matchesSet := ruleRegExp.RegEx.FindAllStringSubmatchIndex(str, -1)
+	matchesSet := ruleRegExp.RegEx.FindAllStringSubmatchIndex(str)
 
 	if mustMatchDateFormat != "" {
 		_matchesSet := matchesSet
